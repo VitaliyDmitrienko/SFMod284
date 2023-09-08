@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -13,29 +15,32 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes("org.example.BuilderField")
-public class BuildProcessor extends AbstractProcessor {
+public class BuilderProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> elementsAnnotatedWith =
-                roundEnv.getElementsAnnotatedWith(BuilderField.class);
 
-        Map<Boolean, List<Element>> annotatedMethods = elementsAnnotatedWith.stream()
-                .collect(Collectors.partitioningBy(element -> ((ExecutableType) element.asType()).getParameterTypes().size() == 1 && element.getSimpleName().toString().startsWith("set")));
+        for (TypeElement annotation : annotations) {
 
-        //Сохраним имя каждого сеттера, тип аргумента и имя класса
-        List<Element> setters = annotatedMethods.get(true);
+            Set<? extends Element> elementsAnnotatedWith =
+                    roundEnv.getElementsAnnotatedWith(BuilderField.class);
 
-        String className = ((TypeElement) setters.get(0).getEnclosingElement()).getQualifiedName().toString();
+            Map<Boolean, List<Element>> annotatedMethods = elementsAnnotatedWith.stream()
+                    .collect(Collectors.partitioningBy(element -> ((ExecutableType) element.asType()).getParameterTypes().size() == 1 && element.getSimpleName().toString().startsWith("set")));
 
-        Map<String, String> setterMap = setters.stream().collect(Collectors.toMap(setter -> setter.getSimpleName().toString(), setter -> ((ExecutableType) setter.asType()).getParameterTypes().get(0).toString()));
+            //Сохраним имя каждого сеттера, тип аргумента и имя класса
+            List<Element> setters = annotatedMethods.get(true);
 
-        try {
-            createBuilderClass(className, setterMap);
-        } catch (IOException e) {
-            e.printStackTrace();
+            String className = ((TypeElement) setters.get(0).getEnclosingElement()).getQualifiedName().toString();
+
+            Map<String, String> setterMap = setters.stream().collect(Collectors.toMap(setter -> setter.getSimpleName().toString(), setter -> ((ExecutableType) setter.asType()).getParameterTypes().get(0).toString()));
+
+            try {
+                createBuilderClass(className, setterMap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
         return true;
     }
 

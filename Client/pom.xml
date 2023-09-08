@@ -41,8 +41,8 @@
                     <encoding>UTF-8</encoding>
                     <annotationProcessors>
                         <annotationProcessor>
-                            BuildProcessor
-<!--                            org.example.BuildProcessor-->
+<!--                            BuildProcessor-->
+                            org.example.BuilderProcessor
                         </annotationProcessor>
                     </annotationProcessors>
                 </configuration>
